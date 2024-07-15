@@ -12,7 +12,7 @@ app = Flask(__name__)
 DB_CONFIG = {
     'user': "root",
     'password': "86991975",
-    'host': "localhost",
+    'host': "45.63.1.224",
     'port': 3306,
     'database': "mydatabase"
 }
@@ -69,7 +69,7 @@ def register_user():
                       (name, email, hashed_password))
             conn.commit()
             conn.close()
-            return render_template('registration_success.html'), 201
+            return redirect(url_for('login_user')), 201
         
         except mysql.connector.Error as e:
             return render_template('registration.html', errors=[str(e)]), 400
@@ -103,7 +103,8 @@ def login_user():
                 # 验证密码
                 hashed_password = hashlib.sha256(password.encode()).hexdigest()
                 if hashed_password == user[3]:  # 假设密码在数据库中的索引是3
-                    return render_template('login_success.html'), 200
+                    # 登录成功，重定向到登录成功页面
+                    return redirect(url_for('login_success'))
                 else:
                     errors.append("密码不正确。")
             else:
@@ -117,5 +118,9 @@ def login_user():
     elif request.method == 'GET':
         # GET 请求，显示登录表单
         return render_template('login.html'), 200
+@app.route('/login/success')
+def login_success():
+    # 可以在这里添加登录成功后的逻辑，如设置 session 或 cookie
+    return render_template('login_success.html'), 200
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
